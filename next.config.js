@@ -4,6 +4,9 @@ const nextConfig = {
 
   images: {
     loader: 'default',
+    domains: [
+      'files.stripe.com'
+    ]
   },
 }
 
