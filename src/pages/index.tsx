@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next';
+import { GetStaticProps } from 'next';
 import Image from 'next/image';
 import Stripe from 'stripe';
 
@@ -7,9 +7,6 @@ import { HomeContainer, Product } from '../styles/pages/home';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 
-import camiseta01 from '../assets/camisetas/camiseta01.png';
-import camiseta02 from '../assets/camisetas/camiseta02.png';
-import camiseta03 from '../assets/camisetas/camiseta03.png';
 import { stripe } from '../lib/stripe';
 
 interface HomeProps {
@@ -47,7 +44,7 @@ export default function Home({ products }: HomeProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const response = await stripe.products.list({
     expand: ['data.default_price'],
   });
@@ -59,7 +56,10 @@ export const getServerSideProps: GetServerSideProps = async () => {
       id: product.id,
       name: product.name,
       imageUrl: product.images[0],
-      price: price.unit_amount / 100,
+      price: new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(price.unit_amount / 100),
     };
   });
 
@@ -67,5 +67,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
     props: {
       products,
     },
+    revalidate: 60 * 60 * 2, // A cada 2h a página será revalidada
   };
 };
